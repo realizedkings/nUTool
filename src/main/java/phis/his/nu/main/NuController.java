@@ -30,7 +30,7 @@ public class NuController {
             ip = request.getRemoteAddr();
         }
 
-        mav.addObject("ip", ip);
+        mav.addObject("ip_addr", ip);
 
         return mav;
     }

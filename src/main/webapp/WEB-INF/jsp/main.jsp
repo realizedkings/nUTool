@@ -18,13 +18,13 @@
     <a target="blank" style="font-size:20px" href="https://emr011edu.cmcnu.or.kr/">
       여의도 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="/logging/011?ip=${ip}">
+    <a target="blank" style="font-size:20px" href="/logging/011?ip_addr=${ip_addr}">
       여의도 성모 병원 교육 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01101.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01101.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       여의도 성모 병원 운영 1호기 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01102.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01102.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       여의도 성모 병원 운영 2호기 로그</a>
     <p></p>
   </div>
@@ -38,19 +38,19 @@
     <a target="blank" style="font-size:20px" href="https://emr012edu.cmcnu.or.kr/">
       서울 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://emr012edu.cmcnu.or.kr/cmcnu/trlog.nu?ip_addr=${ip}&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="/logging/012?ip_addr=${ip_addr}">
       서울 성모 병원 교육 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01201.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01201.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       서울 성모 병원 운영 1호기 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01202.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01202.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       서울 성모 병원 운영 2호기 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01203.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01203.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       서울 성모 병원 운영 3호기 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01204.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01204.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       서울 성모 병원 운영 4호기 로그</a>
     <p></p>
   </div>
@@ -64,13 +64,13 @@
     <a target="blank" style="font-size:20px" href="https://emr013edu.cmcnu.or.kr/">
       의정부 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://emr013edu.cmcnu.or.kr/cmcnu/trlog.nu?ip_addr=${ip}&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="/logging/013?ip_addr=${ip_addr}">
       의정부 성모 병원 교육 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01301.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01301.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       의정부 성모 병원 운영 1호기 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01302.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01302.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       의정부 성모 병원 운영 2호기 로그</a>
     <p></p>
   </div>
@@ -84,13 +84,13 @@
     <a target="blank" style="font-size:20px" href="https://emr014edu.cmcnu.or.kr/">
       부천 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://emr014edu.cmcnu.or.kr/cmcnu/trlog.nu?ip_addr=${ip}&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="/logging/014?ip_addr=${ip_addr}">
       부천 성모 병원 교육 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01401.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01401.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       부천 성모 병원 운영 1호기 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01402.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01402.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       부천 성모 병원 운영 2호기 로그</a>
     <p></p>
   </div>
@@ -110,13 +110,13 @@
     <a target="blank" style="font-size:20px" href="https://emr015edu.cmcnu.or.kr/">
       은평 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://emr015edu.cmcnu.or.kr/cmcnu/trlog.nu?ip_addr=${ip}&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="/logging/015?ip_addr=${ip_addr}">
       은평 성모 병원 교육 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01501.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01501.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       은평 성모 병원 운영 1호기 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01502.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01502.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       은평 성모 병원 운영 2호기 로그</a>
   </div>
   <div name="인천" style="float:left;width:350px">
@@ -129,13 +129,13 @@
     <a target="blank" style="font-size:20px" href="https://emr016edu.cmcnu.or.kr/">
       인천 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://emr016edu.cmcnu.or.kr/cmcnu/trlog.nu?ip_addr=${ip}&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="/logging/016?ip_addr=${ip_addr}">
       인천 성모 병원 교육 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01601.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01601.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       인천 성모 병원 운영 1호기 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01602.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01602.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       인천 성모 병원 운영 2호기 로그</a>
   </div>
   <div name="성빈센트" style="float:left;width:350px">
@@ -148,13 +148,13 @@
     <a target="blank" style="font-size:20px" href="https://emr017edu.cmcnu.or.kr/">
       성빈센트 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://emr017edu.cmcnu.or.kr/cmcnu/trlog.nu?ip_addr=${ip}&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="/logging/017?ip_addr=${ip_addr}">
       성빈센트 성모 병원 교육 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01701.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01701.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       성빈센트 성모 병원 운영 1호기 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01702.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01702.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       성빈센트 성모 병원 운영 2호기 로그</a>
   </div>
   <div name="대전" style="float:left;width:350px">
@@ -167,13 +167,13 @@
     <a target="blank" style="font-size:20px" href="https://emr018edu.cmcnu.or.kr/">
       대전 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://emr018edu.cmcnu.or.kr/cmcnu/trlog.nu?ip_addr=${ip}&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="/logging/018?ip_addr=${ip_addr}">
       대전 성모 병원 교육 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01801.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01801.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       대전 성모 병원 운영 1호기 로그</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01802.live?ip_addr=${ip}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
+    <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01802.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
       대전 성모 병원 운영 2호기 로그</a>
   </div>
 </div>

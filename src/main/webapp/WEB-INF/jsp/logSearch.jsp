@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="webapps/css/trlog.css">
+    <link rel="stylesheet" type="text/css" href="http://emr${instcd}edu.cmcnu.or.kr/webapps/css/trlog.css">
     <script language="javascript">
         function lmon(trid,ctx,node,logdt) { window.open('ulog.nu?trid='+trid+'&ctx='+ctx+'&node='+node+'&date='+logdt,'_blank','menubar=0,resizable=1,toolbar=0,location=0,scrollbars=1');}
         function sview(svcname) { window.open('svc.nu?name='+svcname,'_blank','menubar=0,resizable=1,toolbar=0,location=0,scrollbars=1');}
@@ -9,15 +9,15 @@
 </head>
 
 <body>
-<form id="req" action="/cmcnu/trlog.nu" method="GET">
-    ip_addr: <input type="text" name="ip_addr" value="10.110.14.161">
-    svc_name: <input type="text" name="svc_name" value="">
-    user_id: <input type="text" name="user_id" value="">
-    tr_id: <input type="text" name="tr_id" value="">
-    date: <input type="text" name="date" value="2022122315">
-    svc_url: <input type="text" name="svc_url" value="">
-    succ_yn: <input type="text" name="succ_yn" value="">
-    op_name: <input type="text" name="op_name" value="">
+<form id="req" action="/cmcnu/trlog.nu?instcd=${instcd}" method="GET">
+    ip_addr: <input type="text" name="ip_addr" value="${logging.ip_addr}">
+    svc_name: <input type="text" name="svc_name" value="${logging.svc_name}">
+    user_id: <input type="text" name="user_id" value="${logging.user_id}">
+    tr_id: <input type="text" name="tr_id" value="${logging.tr_id}">
+    date: <input type="text" name="date" value="${logging.date}">
+    svc_url: <input type="text" name="svc_url" value="${logging.svc_url}">
+    succ_yn: <input type="text" name="succ_yn" value="${logging.succ_yn}">
+    op_name: <input type="text" name="op_name" value="${logging.op_name}">
     <input type="submit" value="submit">
 </form>
 
@@ -36,18 +36,7 @@
         <th>op_name</th>
         <th>svc_msec</th>
         <th>succ_yn</th>
-        <th>ret_count</th></tr>
-    <tr><td>2022.12.23 15:02:55</td>
-        <td>null_</td>
-        <td class="link" onclick="lmon(&quot;68000898&quot;,&quot;&quot;,&quot;null_&quot;,&quot;1671775375000&quot;)">68000898</td>
-        <td></td><td>10.110.14.161</td>
-        <td>trlog.nu</td><td>null</td>
-        <td>1</td>
-        <td class="link" onclick="sview(&quot;null&quot;)">null</td>
-        <td>null</td>
-        <td>null</td>
-        <td>T</td>
-        <td>null</td>
+        <th>ret_count</th>
     </tr>
     </tbody>
 </table>
