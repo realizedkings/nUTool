@@ -6,17 +6,17 @@ import lombok.Setter;
 @Setter
 @Getter
 public class Logging {
-    public String ip_addr;
-    public String svc_name;
-    public String user_id;
-    public String tr_id;
-    public String date;
-    public String svc_url;
-    public String succ_yn;
-    public String op_name;
+    private String ip_addr;
+    private String svc_name;
+    private String user_id;
+    private String tr_id;
+    private String date;
+    private String svc_url;
+    private String succ_yn;
+    private String op_name;
 
-    public String trid;
-    public String ctx;
-    public String node;
-    public String logdt;
+    private String trid;
+    private String ctx;
+    private String node;
+    private String logdt;
 }
