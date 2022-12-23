@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/logging")
 public class LoggingNuController {
     @GetMapping("/{instcd}")
-    public ModelAndView getLog(@PathVariable String instcd) {
+    public ModelAndView getLog(@PathVariable String instcd, String ip) {
         ModelAndView mav = new ModelAndView("logSearch");
         mav.addObject("instcd", instcd);
 
