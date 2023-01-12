@@ -3,7 +3,7 @@
 <head>
     <!--<link rel="stylesheet" type="text/css" href="http://emr${instcd}edu.cmcnu.or.kr/webapps/css/trlog.css">-->
     <script language="javascript">
-        function lmon(trid,ctx,node,logdt) { window.open('ulog.nu?trid='+trid+'&ctx='+ctx+'&node='+node+'&date='+logdt,'_blank','menubar=0,resizable=1,toolbar=0,location=0,scrollbars=1');}
+        function lmon(trid,ctx,node,logdt) { window.open('ulog.nu?trid='+trid+'&ctx='+ctx+'&node='+node+'&date='+logdt+'&instcd'+${instcd},'_blank','menubar=0,resizable=1,toolbar=0,location=0,scrollbars=1');}
         function sview(svcname) { window.open('svc.nu?name='+svcname,'_blank','menubar=0,resizable=1,toolbar=0,location=0,scrollbars=1');}
     </script>
 </head>
@@ -21,6 +21,6 @@
     <input type="submit" value="submit">
 </form>
     ${tableBody}
-<input type="button" onclick="lmon('', '', '', '')" value="버튼테스트" />
+<%--<input type="button" onclick="lmon('', '', '', '')" value="버튼테스트" />--%>
 </body>
 </html>

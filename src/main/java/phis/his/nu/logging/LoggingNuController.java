@@ -63,9 +63,9 @@ public class LoggingNuController {
         return mav;
     }
 
-    // 로그 열기
+    // 상세 로그 열기
     @GetMapping("/ulog.nu")
-    public ModelAndView getDetailLog(Logging logging) {
+    public ModelAndView getDetailLog(Logging logging, String instcd) {
         ModelAndView mav = new ModelAndView("logDetail");
 
         // 파싱 하고 보내기
