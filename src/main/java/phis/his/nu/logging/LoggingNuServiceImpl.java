@@ -76,7 +76,7 @@ public class LoggingNuServiceImpl implements LoggingNuService {
 
                 start = line.indexOf("[", start + 1);
                 end   = line.indexOf("]", end + 1);
-                String packageInfo = line.substring(start + 1, end);
+                String packageInfo = line.substring(start + 1, end).trim();
 
                 if (line.indexOf("starts.", end) != -1) {
                     String methodName = line.substring(end + 1, line.indexOf("starts.", end));
@@ -113,16 +113,12 @@ public class LoggingNuServiceImpl implements LoggingNuService {
         for (int i = 0; i < exitMethod.size(); i++) {
             Map<String, String> printMethod = exitMethod.get(i);
             StringBuilder tabText = new StringBuilder();
-            StringBuilder packageInfo = new StringBuilder(printMethod.get("package"));
-
-            for (int k = 0; k < 100 - packageInfo.length(); k++) packageInfo.append(" ");
-
+            String packageInfo = printMethod.get("package");
 
             for (int j = 0; j < Integer.parseInt(printMethod.get("layer")); j++) {
-                tabText.append("  ");
+                tabText.append("    ");
             }
 
-            System.out.print(packageInfo.toString());
             System.out.println(tabText.toString() + printMethod.get("methodName"));
         }
     }
