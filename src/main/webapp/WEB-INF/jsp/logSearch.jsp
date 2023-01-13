@@ -9,7 +9,7 @@
 </head>
 
 <body>
-<form id="req" action="/logging/cmcnu/trlog.nu?instcd=${instcd}" method="GET">
+<form id="req" action="/logging/cmcnu/trlog.nu" method="GET">
     ip_addr: <input type="text" name="ip_addr" value="${logging.ip_addr}">
     svc_name: <input type="text" name="svc_name" value="${logging.svc_name}">
     user_id: <input type="text" name="user_id" value="${logging.user_id}">
@@ -18,6 +18,8 @@
     svc_url: <input type="text" name="svc_url" value="${logging.svc_url}">
     succ_yn: <input type="text" name="succ_yn" value="${logging.succ_yn}">
     op_name: <input type="text" name="op_name" value="${logging.op_name}">
+
+    <input type="text" name="instcd" value="${logging.instcd}"/>
     <input type="submit" value="submit">
 </form>
     ${tableBody}

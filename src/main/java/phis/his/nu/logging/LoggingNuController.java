@@ -65,17 +65,25 @@ public class LoggingNuController {
 
     // 상세 로그 열기
     @GetMapping("/ulog.nu")
-    public ModelAndView getDetailLog(Logging logging, String instcd) {
+    public ModelAndView getDetailLog(Logging logging, String instcd) throws Exception {
         ModelAndView mav = new ModelAndView("logDetail");
+        String queryMessage = "ulog.nu?trid=" + logging.getTrid() +
+                                      "&ctx=" + logging.getCtx()  +
+                                     "&node=" + logging.getNode() +
+                                     "&date=" + logging.getDate();
 
-        // 파싱 하고 보내기
+        Document doc = Jsoup.connect("http://emr" + instcd + "edu.cmcnu.or.kr?" + queryMessage).get();
+        Elements preText = doc.getElementsByTag("pre");
+
+        System.out.println(preText);
+        System.out.println(preText.text());
 
         return mav;
     }
     
     // submit 보내기
     @GetMapping("/cmcnu/trlog.nu")
-    public ModelAndView searchLog(Logging logging, String instcd) throws Exception {
+    public ModelAndView searchLog(Logging logging) throws Exception {
         String queryMessage = "ip_addr="   + logging.getIp_addr() +
                               "&svc_name=" + logging.getSvc_name() +
                               "&user_id="  + logging.getUser_id() +
@@ -85,8 +93,10 @@ public class LoggingNuController {
                               "&succ_yn="  + logging.getSucc_yn() +
                               "&op_name="  + logging.getOp_name();
 
-        Document doc = Jsoup.connect("http://emr" + instcd + "edu.cmcnu.or.kr?" + queryMessage).get();
+        Document doc = Jsoup.connect("http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr?" + queryMessage).get();
         Elements table = doc.getElementsByTag("table");
+
+        System.out.println("");
 
         ModelAndView mav = new ModelAndView("logSearch");
         mav.addObject("tableBody", table);

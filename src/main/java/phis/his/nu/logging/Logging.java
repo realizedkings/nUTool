@@ -19,4 +19,5 @@ public class Logging {
     private String ctx;
     private String node;
     private String logdt;
+    private String instcd;
 }

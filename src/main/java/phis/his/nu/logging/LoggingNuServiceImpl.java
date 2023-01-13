@@ -8,29 +8,6 @@ import java.util.*;
 
 @Service
 public class LoggingNuServiceImpl implements LoggingNuService {
-    public static void main(String[] args) throws Exception {
-        File file = null;
-        FileInputStream fileInputStream = null;
-        StringBuilder text = new StringBuilder();
-
-        try {
-            file = new File("C:\\Users\\tngjs\\OneDrive\\자료\\PARAM\\정상 종료 case.txt");
-            fileInputStream = new FileInputStream(file);
-
-            int next = 0;
-            while ((next = fileInputStream.read()) != -1) {
-                text.append((char) next);
-            }
-
-        } catch (Exception e) {
-
-        } finally {
-            if (fileInputStream != null) {
-                fileInputStream.close();
-            }
-        }
-    }
-
     @Override
     public List<Map<String, String>> parseLog(String text) {
         String[] allLines = text.split("\n");
