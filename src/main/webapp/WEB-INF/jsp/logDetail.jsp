@@ -1,22 +1,36 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html lang="ko"><head>
-    <meta charset="euc-kr">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <script type="text/ecmascript" src="js/jquery-1.12.4.min.js"></script>
-    <script type="text/ecmascript" src="js/axios.min.js"></script>
-    <script type="text/ecmascript" src="js/polyfill.min.js"></script>
-    <script type="text/ecmascript" src="js/jquery.jqGrid.min.js"></script>
-    <script type="text/ecmascript" src="js/i18n/grid.locale-en.js"></script>
-    <script type="text/ecmascript" src="js/bootstrap.min.js"></script>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%--    <meta charset="euc-kr">--%>
+<%--    <meta http-equiv="X-UA-Compatible" content="IE=edge">--%>
 
-    <link rel="stylesheet" type="text/css" media="screen" href="css/jquery-ui.min.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="css/ui.jqgrid.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css">
+    <script>
+        function copy(index) {
+            window.navigator.clipboard.writeText("복사될 텍스트").then(() => {
+                // 복사가 완료되면 이 부분이 호출된다.
+                alert("복사 완료!");
+            });
+        }
+    </script>
+<%--    <script type="text/ecmascript" src="http://logview.cmcnu.or.kr/himed/webapps/logview/js/jquery-1.12.4.min.js"></script>--%>
+<%--    <script type="text/ecmascript" src="http://logview.cmcnu.or.kr/himed/webapps/logview/js/axios.min.js"></script>--%>
+<%--    <script type="text/ecmascript" src="http://logview.cmcnu.or.kr/himed/webapps/logview/js/polyfill.min.js"></script>--%>
+<%--    <script type="text/ecmascript" src="http://logview.cmcnu.or.kr/himed/webapps/logview/js/jquery.jqGrid.min.js"></script>--%>
+<%--    <script type="text/ecmascript" src="http://logview.cmcnu.or.kr/himed/webapps/logview/js/i18n/grid.locale-en.js"></script>--%>
+<%--    <script type="text/ecmascript" src="http://logview.cmcnu.or.kr/himed/webapps/logview/js/bootstrap.min.js"></script>--%>
+
+    <link rel="stylesheet" type="text/css" media="screen" href="http://logview.cmcnu.or.kr/himed/webapps/logview/css/jquery-ui.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="http://logview.cmcnu.or.kr/himed/webapps/logview/css/ui.jqgrid.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="http://logview.cmcnu.or.kr/himed/webapps/logview/css/bootstrap.min.css">
+
 
     <title>nU LogView</title>
+
 </head>
 <body style="margin:5px;">
-
+<button type="button" onclick="copy(1)" value="asdf">dfsdfsf</button>
 <div id="basicInfo" style="width:1250px;margin-bottom:10px">
     <span style="margin-right:20px"><b>User ID</b></span><input id="userId" type="text" disabled="" style="margin-right:60px">
     <span style="margin-right:20px"><b>IP Address</b></span><input id="ipAddr" type="text" disabled="" style="margin-right:60px">
@@ -28,12 +42,6 @@
     <div class="modal fade" id="myModal" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <!--
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Modal Header</h4>
-                </div>
-                -->
                 <div class="modal-body" style="overflow-y: scroll;">
                     <pre id="sqlViewer">					</pre></div>
                 <div class="modal-footer">
@@ -46,11 +54,13 @@
 <div class="ui-jqgrid ui-widget ui-widget-content ui-corner-all" id="gbox_tree" dir="ltr" style="width: 1250px;">
     <div class="jqgrid-overlay ui-widget-overlay" id="lui_tree"></div>
     <div class="loading ui-state-default ui-state-active" id="load_tree" style="display: none;">Loading...</div>
+
     <div class="ui-jqgrid-view " role="grid" id="gview_tree" style="width: 1250px;">
         <div class="ui-jqgrid-titlebar ui-jqgrid-caption ui-widget-header ui-corner-top ui-helper-clearfix" style="display: none;">
             <a role="link" class="ui-jqgrid-titlebar-close HeaderButton ui-corner-all" title="Toggle Expand Collapse Grid" style="right: 0px;">
                 <span class="ui-jqgrid-headlink ui-icon ui-icon-circle-triangle-n"></span></a><span class="ui-jqgrid-title"></span>
         </div>
+
         <div class="ui-jqgrid-hdiv ui-state-default ui-corner-top" style="width: 1250px;">
             <div class="ui-jqgrid-hbox">
                 <table class="ui-jqgrid-htable ui-common-table " style="width:1250px" role="presentation" aria-labelledby="gbox_tree">
@@ -125,30 +135,46 @@
         </div>
 
         <div class="ui-jqgrid-bdiv" style="height: auto; width: 1250px;">
+
             <div style="position:relative;">
                 <div>
 
                 </div>
                 <table id="tree" tabindex="0" role="presentation" aria-multiselectable="false" aria-labelledby="gbox_tree" class="ui-jqgrid-btable ui-common-table" style="width: 1250px;">
                     <tbody>
-                    <tr class="jqgfirstrow" role="row">
-                        <td role="gridcell" style="height:0px;width:30px;"></td>
-                        <td role="gridcell" style="height:0px;width:500px;"></td>
-                        <td role="gridcell" style="height:0px;width:650px;"></td>
-                        <td role="gridcell" style="height:0px;width:70px;"></td>
-                        <td role="gridcell" style="height:0px;width:150px;display:none;"></td>
-                        <td role="gridcell" style="height:0px;width:150px;display:none;"></td>
-                        <td role="gridcell" style="height:0px;width:150px;display:none;"></td>
-                    </tr>
-                    <tr role="row" id="0" tabindex="-1" class="jqgrow ui-row-ltr ui-widget-content">
-                        <td role="gridcell" style="text-align:right;" title="0" aria-describedby="tree_index">0</td>
-                        <td role="gridcell" style="" title="▼phis.nu.his.cmc.web.xplatform.XPlatformWebAction" aria-describedby="tree_packageNm">▼phis.nu.his.cmc.web.xplatform.XPlatformWebAction</td>
-                        <td role="gridcell" style="" title="execute()" aria-describedby="tree_dispMethodNm">execute()</td>
-                        <td role="gridcell" style="text-align:right;" title="4" aria-describedby="tree_executeTime">4</td>
-                        <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isError">false</td>
-                        <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isSql">false</td>
-                        <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isProcedure">false</td>
-                    </tr>
+                        <tr class="jqgfirstrow" role="row">
+                            <td role="gridcell" style="height:0px;width:30px;"></td>
+                            <td role="gridcell" style="height:0px;width:500px;"></td>
+                            <td role="gridcell" style="height:0px;width:650px;"></td>
+                            <td role="gridcell" style="height:0px;width:70px;"></td>
+                            <td role="gridcell" style="height:0px;width:150px;display:none;"></td>
+                            <td role="gridcell" style="height:0px;width:150px;display:none;"></td>
+                            <td role="gridcell" style="height:0px;width:150px;display:none;"></td>
+                        </tr>
+                        <c:forEach var="logs" items="${logs}" varStatus="status">
+                            <c:if test="${logs.isQuery eq 'Y'}">
+                                <tr role="row" id="${status.index}" tabindex="-1" class="jqgrow ui-row-ltr ui-widget-content" style="color:green">
+                                    <td role="gridcell" style="text-align:right;" title="${logs.no}" aria-describedby="tree_index">${logs.no}</td>
+                                    <td role="gridcell" style="" title="${logs.packageName}" aria-describedby="tree_packageNm">${logs.packageName}</td>
+                                    <td role="gridcell" style="" title="${logs.methodName}" aria-describedby="tree_dispMethodNm">${logs.methodName}<br><input id="query${logs.no}" value="${logs.query}" style="display:none;" /><button type="button" onclick="copy(${logs.no})">Literal</button><button type="button" onclick="sql_click( 'B', 2);">Bind</button><button type="button" onclick="sql_click( 'S', 2);">Script</button><button type="button" onclick="sql_click( 'V', 2);">View</button></td>
+                                    <td role="gridcell" style="text-align:right;" title="${logs.runTime}" aria-describedby="tree_executeTime">${logs.runTime}</td>
+                                    <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isError">false</td>
+                                    <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isSql">false</td>
+                                    <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isProcedure">false</td>
+                                </tr>
+                            </c:if>
+                            <c:if test="${logs.isQuery eq 'N'}">
+                                <tr role="row" id="${status.index}" tabindex="-1" class="jqgrow ui-row-ltr ui-widget-content">
+                                    <td role="gridcell" style="text-align:right;" title="${logs.no}" aria-describedby="tree_index">${logs.no}</td>
+                                    <td role="gridcell" style="" title="${logs.packageName}" aria-describedby="tree_packageNm">${logs.packageName}</td>
+                                    <td role="gridcell" style="" title="${logs.methodName}" aria-describedby="tree_dispMethodNm">${logs.methodName}</td>
+                                    <td role="gridcell" style="text-align:right;" title="${logs.runTime}" aria-describedby="tree_executeTime">${logs.runTime}</td>
+                                    <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isError">false</td>
+                                    <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isSql">false</td>
+                                    <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isProcedure">false</td>
+                                </tr>
+                            </c:if>
+                        </c:forEach>
                     </tbody>
                 </table>
             </div>

@@ -19,7 +19,7 @@
     succ_yn: <input type="text" name="succ_yn" value="${logging.succ_yn}">
     op_name: <input type="text" name="op_name" value="${logging.op_name}">
 
-    <input type="text" name="instcd" value="${logging.instcd}"/>
+    <input type="text" style="display:none" name="instcd" value="${logging.instcd}"/>
     <input type="submit" value="submit">
 </form>
     <table>

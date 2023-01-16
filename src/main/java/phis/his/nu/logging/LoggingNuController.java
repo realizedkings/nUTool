@@ -79,10 +79,12 @@ public class LoggingNuController {
                                      "&date=" + logging.getDate();
 
         Document doc = Jsoup.connect("http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage).timeout(1000).get();
+        doc.outputSettings().prettyPrint(false);
         Elements preText = doc.getElementsByTag("body");
 
-        List<Map<String, String>> logs = loggingNuService.parseLog(preText.text());
+        List<Map<String, String>> logs = loggingNuService.parseLog(preText.html());
         mav.addObject("logs", logs);
+        mav.addObject("logging", logging);
 
         return mav;
     }

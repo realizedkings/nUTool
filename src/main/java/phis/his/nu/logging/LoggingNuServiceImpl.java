@@ -85,7 +85,7 @@ public class LoggingNuServiceImpl implements LoggingNuService {
 
                     HashMap<String, String> methodInfo = new HashMap<>();
                     methodInfo.put("methodName", methodName);
-                    methodInfo.put("package", packageInfo);
+                    methodInfo.put("packageName", packageInfo);
                     methodInfo.put("layer", layer + "");
                     methodInfo.put("isQuery", "N");
 
@@ -134,11 +134,11 @@ public class LoggingNuServiceImpl implements LoggingNuService {
                     param = param.substring(param.indexOf("[") + 1, param.indexOf("]"));
 
                     queryInfo.put("id", queryParts[0]);
-                    queryInfo.put("runTime", queryParts[1].replace("[|]", "").replace("msecs", "").trim());
+                    queryInfo.put("runTime", queryParts[1].replace("msec", "").trim());
                     queryInfo.put("param", param);
                     queryInfo.put("records", queryParts[3]);
                     queryInfo.put("statement", queryParts[4]);
-                    queryInfo.put("package", packageInfo);
+                    queryInfo.put("packageName", packageInfo);
                     queryInfo.put("layer", layer + "");
 
                     queryFlag = true;
@@ -159,17 +159,12 @@ public class LoggingNuServiceImpl implements LoggingNuService {
             }
 
             if ("Y".equals(printMethod.get("isQuery"))) {
-                printMethod.put("methodName", tabText + "execute query (" + printMethod.get("records") + ")\r\n"
-                                            + tabText + printMethod.get("statement"));
-                printMethod.put("package", tabText + "○" + printMethod.get("package"));
+                printMethod.put("methodName", "execute query (" + printMethod.get("records") + ")\r\n"
+                                            + printMethod.get("statement"));
+                printMethod.put("packageName", tabText + "○" + printMethod.get("packageName"));
             } else {
-                printMethod.put("package", tabText + "▼" + printMethod.get("package"));
+                printMethod.put("packageName", tabText + "▼" + printMethod.get("packageName"));
             }
-
-            System.out.print(printMethod.get("no") + "  ");
-            System.out.print(printMethod.get("package") + "  ");
-            System.out.print(printMethod.get("methodName") + "  ");
-            System.out.print(printMethod.get("runTime") + "  \r\n");
         }
 
         return totalReturns;
