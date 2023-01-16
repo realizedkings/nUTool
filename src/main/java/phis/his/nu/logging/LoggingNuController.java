@@ -1,27 +1,33 @@
 package phis.his.nu.logging;
 
-import lombok.extern.java.Log;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.boot.Banner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/logging")
 public class LoggingNuController {
+    private LoggingNuService loggingNuService;
+
+    @Autowired
+    public void setLoggingNuService(LoggingNuService loggingNuService) {
+        this.loggingNuService = loggingNuService;
+    }
+
     @GetMapping("/main")
     public ModelAndView main(HttpServletRequest request) {
         ModelAndView mav = new ModelAndView("main");
@@ -64,19 +70,19 @@ public class LoggingNuController {
     }
 
     // 상세 로그 열기
-    @GetMapping("/ulog.nu")
-    public ModelAndView getDetailLog(Logging logging, String instcd) throws Exception {
+    @GetMapping("/cmcnu/ulog.nu")
+    public ModelAndView getDetailLog(Logging logging) throws Exception {
         ModelAndView mav = new ModelAndView("logDetail");
         String queryMessage = "ulog.nu?trid=" + logging.getTrid() +
                                       "&ctx=" + logging.getCtx()  +
                                      "&node=" + logging.getNode() +
                                      "&date=" + logging.getDate();
 
-        Document doc = Jsoup.connect("http://emr" + instcd + "edu.cmcnu.or.kr?" + queryMessage).get();
-        Elements preText = doc.getElementsByTag("pre");
+        Document doc = Jsoup.connect("http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage).timeout(1000).get();
+        Elements preText = doc.getElementsByTag("body");
 
-        System.out.println(preText);
-        System.out.println(preText.text());
+        List<Map<String, String>> logs = loggingNuService.parseLog(preText.text());
+        mav.addObject("logs", logs);
 
         return mav;
     }
@@ -93,13 +99,22 @@ public class LoggingNuController {
                               "&succ_yn="  + logging.getSucc_yn() +
                               "&op_name="  + logging.getOp_name();
 
-        Document doc = Jsoup.connect("http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr?" + queryMessage).get();
-        Elements table = doc.getElementsByTag("table");
+        Elements table = null;
+        int connectCount = 0;
 
-        System.out.println("");
+        while (connectCount < 2) {
+            try {
+                Document doc = Jsoup.connect("http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/trlog.nu?" + queryMessage).get();
+                table = doc.getElementsByTag("table");
+                break;
+            } catch (HttpStatusException exception) {
+                connectCount++;
+                continue;
+            }
+        }
 
         ModelAndView mav = new ModelAndView("logSearch");
-        mav.addObject("tableBody", table);
+        mav.addObject("tableBody", table.html());
         mav.addObject("logging", logging);
 
         return mav;
