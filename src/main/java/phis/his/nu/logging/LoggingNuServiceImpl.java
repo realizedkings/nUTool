@@ -27,8 +27,8 @@ public class LoggingNuServiceImpl implements LoggingNuService {
                 queryString.append(line + "\r\n"); // 쿼리문 삽입
 
                 // 다음 행에 쿼리 종료 시 전체 리스트에 넣고 종료
-                if (i != allLines.length -1
-                            && allLines[i+1].indexOf("[") == 9 && allLines[i+1].indexOf("node=") == 10) {
+                if (i != allLines.length - 2
+                            && allLines[i + 2].indexOf("[") == 9 && allLines[i + 2].indexOf("node=") == 10) {
                     StringBuilder bindingQuery = new StringBuilder(queryString.toString());
                     String[] params = queryInfo.get("param").split(", ");
                     int bindNumber = bindingQuery.indexOf("?");
@@ -46,7 +46,7 @@ public class LoggingNuServiceImpl implements LoggingNuService {
                         bindingQuery.insert(0, "Parameter 에 \", \" 가 포함되어 있어 바인딩이 취소되었습니다.");
                     }
 
-                    queryInfo.put("query", bindingQuery.toString());
+                    queryInfo.put("query", queryInfo.get("statement") + "\r\n" + bindingQuery.toString());
                     queryInfo.put("isQuery", "Y");
                     totalReturns.add(queryInfo);
 
@@ -89,6 +89,10 @@ public class LoggingNuServiceImpl implements LoggingNuService {
                     methodInfo.put("layer", layer + "");
                     methodInfo.put("isQuery", "N");
 
+                    if (i == 0) {
+                        methodInfo.put("startTime", timeInfo);
+                    }
+
                     totalReturns.add(methodInfo);
 
                     layer++;
@@ -116,7 +120,7 @@ public class LoggingNuServiceImpl implements LoggingNuService {
 
                         if ("N".equals(element.get("isQuery")) && element.get("methodName").equals(methodName)) {
                             element.put("runTime", runTime.replace("msecs", "").trim());
-
+                            element.put("endTime", timeInfo);
                             break;
                         }
                     }
@@ -169,4 +173,5 @@ public class LoggingNuServiceImpl implements LoggingNuService {
 
         return totalReturns;
     }
+
 }

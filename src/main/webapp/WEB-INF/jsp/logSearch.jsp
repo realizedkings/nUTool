@@ -1,10 +1,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
+    <title>
+        ${logging.instcd} 교육로그
+    </title>
     <link rel="stylesheet" type="text/css" href="http://emr${logging.instcd}edu.cmcnu.or.kr/cmcnu/webapps/css/trlog.css">
     <script language="javascript">
         function lmon(trid,ctx,node,logdt) { window.open('ulog.nu?trid='+trid+'&ctx='+ctx+'&node='+node+'&date='+logdt+'&instcd=${logging.instcd}','_blank','menubar=0,resizable=1,toolbar=0,location=0,scrollbars=1');}
-        function sview(svcname) { window.open('svc.nu?name='+svcname,'_blank','menubar=0,resizable=1,toolbar=0,location=0,scrollbars=1');}
+        function sview(svcname) { window.open('http://emr${logging.instcd}edu.cmcnu.or.kr/cmcnu/svc.nu?name='+svcname,'_blank','menubar=0,resizable=1,toolbar=0,location=0,scrollbars=1');}
     </script>
 </head>
 
@@ -22,9 +25,8 @@
     <input type="text" style="display:none" name="instcd" value="${logging.instcd}"/>
     <input type="submit" value="submit">
 </form>
-    <table>
+    <table border="1">
         ${tableBody}
     </table>
-<%--<input type="button" onclick="lmon('', '', '', '')" value="버튼테스트" />--%>
 </body>
 </html>

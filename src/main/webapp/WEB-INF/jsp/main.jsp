@@ -4,7 +4,6 @@
   <title>
     nU 2.0 바로가기모음
   </title>
-
 </head>
 <body>
 <div name="첫줄">
@@ -18,7 +17,7 @@
     <a target="blank" style="font-size:20px" href="https://emr011edu.cmcnu.or.kr/">
       여의도 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="/logging/011?ip_addr=${ip_addr}">
+    <a target="blank" style="font-size:20px" href="/logging/cmcnu/trlog.nu?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=&instcd=011">
       여의도 성모 병원 교육 로그</a>
     <p></p>
     <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01101.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
@@ -38,7 +37,7 @@
     <a target="blank" style="font-size:20px" href="https://emr012edu.cmcnu.or.kr/">
       서울 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="/logging/012?ip_addr=${ip_addr}">
+    <a target="blank" style="font-size:20px" href="/logging/cmcnu/trlog.nu?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=&instcd=012">
       서울 성모 병원 교육 로그</a>
     <p></p>
     <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01201.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
@@ -64,7 +63,7 @@
     <a target="blank" style="font-size:20px" href="https://emr013edu.cmcnu.or.kr/">
       의정부 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="/logging/013?ip_addr=${ip_addr}">
+    <a target="blank" style="font-size:20px" href="/logging/cmcnu/trlog.nu?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=&instcd=013">
       의정부 성모 병원 교육 로그</a>
     <p></p>
     <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01301.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
@@ -84,7 +83,7 @@
     <a target="blank" style="font-size:20px" href="https://emr014edu.cmcnu.or.kr/">
       부천 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="/logging/014?ip_addr=${ip_addr}">
+    <a target="blank" style="font-size:20px" href="/logging/cmcnu/trlog.nu?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=&instcd=014">
       부천 성모 병원 교육 로그</a>
     <p></p>
     <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01401.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
@@ -110,7 +109,7 @@
     <a target="blank" style="font-size:20px" href="https://emr015edu.cmcnu.or.kr/">
       은평 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="/logging/015?ip_addr=${ip_addr}">
+    <a target="blank" style="font-size:20px" href="/logging/cmcnu/trlog.nu?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=&instcd=015">
       은평 성모 병원 교육 로그</a>
     <p></p>
     <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01501.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
@@ -129,7 +128,7 @@
     <a target="blank" style="font-size:20px" href="https://emr016edu.cmcnu.or.kr/">
       인천 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="/logging/016?ip_addr=${ip_addr}">
+    <a target="blank" style="font-size:20px" href="/logging/cmcnu/trlog.nu?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=&instcd=016">
       인천 성모 병원 교육 로그</a>
     <p></p>
     <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01601.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
@@ -148,7 +147,7 @@
     <a target="blank" style="font-size:20px" href="https://emr017edu.cmcnu.or.kr/">
       성빈센트 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="/logging/017?ip_addr=${ip_addr}">
+    <a target="blank" style="font-size:20px" href="/logging/cmcnu/trlog.nu?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=&instcd=017">
       성빈센트 성모 병원 교육 로그</a>
     <p></p>
     <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01701.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">
@@ -167,7 +166,7 @@
     <a target="blank" style="font-size:20px" href="https://emr018edu.cmcnu.or.kr/">
       대전 성모 병원 교육 서버</a>
     <p></p>
-    <a target="blank" style="font-size:20px" href="/logging/018?ip_addr=${ip_addr}">
+    <a target="blank" style="font-size:20px" href="/logging/cmcnu/trlog.nu?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=&instcd=018">
       대전 성모 병원 교육 로그</a>
     <p></p>
     <a target="blank" style="font-size:20px" href="http://logview.cmcnu.or.kr/himed/nu2log01801.live?ip_addr=${ip_addr}&screen_id=&svc_name=&user_id=&tr_id=&date=&svc_url=&succ_yn=&op_name=">

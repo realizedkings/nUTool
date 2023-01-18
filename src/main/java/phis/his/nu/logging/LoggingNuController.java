@@ -54,21 +54,6 @@ public class LoggingNuController {
         return mav;
     }
 
-    @GetMapping("/{instcd}")    // 기관별 교육 로그 페이지
-    public ModelAndView getLogPage(@PathVariable String instcd, Logging logging) {
-        ModelAndView mav = new ModelAndView("logSearch");
-
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
-        String date = now.format(dateTimeFormatter);
-        logging.setDate(date);
-
-        mav.addObject("instcd", instcd);
-        mav.addObject("logging", logging);
-
-        return mav;
-    }
-
     // 상세 로그 열기
     @GetMapping("/cmcnu/ulog.nu")
     public ModelAndView getDetailLog(Logging logging) throws Exception {
@@ -85,6 +70,7 @@ public class LoggingNuController {
         List<Map<String, String>> logs = loggingNuService.parseLog(preText.html());
         mav.addObject("logs", logs);
         mav.addObject("logging", logging);
+        mav.addObject("originalUrl", "http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage);
 
         return mav;
     }
@@ -92,6 +78,13 @@ public class LoggingNuController {
     // submit 보내기
     @GetMapping("/cmcnu/trlog.nu")
     public ModelAndView searchLog(Logging logging) throws Exception {
+        if (logging.getDate() == null) {    // 처음 페이지 오픈 시 날짜 지정
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
+            String date = now.format(dateTimeFormatter);
+            logging.setDate(date);
+        }
+
         String queryMessage = "ip_addr="   + logging.getIp_addr() +
                               "&svc_name=" + logging.getSvc_name() +
                               "&user_id="  + logging.getUser_id() +
