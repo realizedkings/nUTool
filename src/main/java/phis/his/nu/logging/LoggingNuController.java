@@ -3,12 +3,10 @@ package phis.his.nu.logging;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -67,18 +65,25 @@ public class LoggingNuController {
         doc.outputSettings().prettyPrint(false);
         Elements preText = doc.getElementsByTag("body");
 
-        List<Map<String, String>> logs = loggingNuService.parseLog(preText.html());
-        mav.addObject("logs", logs);
-        mav.addObject("logging", logging);
-        mav.addObject("originalUrl", "http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage);
+        List<Map<String, String>> logs = null;
+        try {
+            logs = loggingNuService.parseLog(preText.html());
+
+            mav.addObject("logs", logs);
+            mav.addObject("logging", logging);
+            mav.addObject("originalUrl", "http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage);
+        } catch (Exception e) {
+            mav.setViewName("http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage);
+        }
 
         return mav;
     }
     
     // submit 보내기
     @GetMapping("/cmcnu/trlog.nu")
-    public ModelAndView searchLog(Logging logging) throws Exception {
-        if (logging.getDate() == null) {    // 처음 페이지 오픈 시 날짜 지정
+    public ModelAndView searchLog(Logging logging, HttpServletRequest request) throws Exception {
+        if (logging.getDate() == null
+                        || "".equals(logging.getDate())) {    // 처음 페이지 오픈 시 날짜 지정
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
             String date = now.format(dateTimeFormatter);

@@ -218,6 +218,17 @@
                                     <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isProcedure">false</td>
                                 </tr>
                             </c:if>
+                            <c:if test="${logs.isQuery eq 'E'}">
+                                <tr role="row" id="${status.index}" tabindex="0" class="jqgrow ui-row-ltr ui-widget-content ui-state-highlight" aria-selected="true" style="color: red;">
+                                    <td role="gridcell" style="text-align:right;" title="${logs.no}" aria-describedby="tree_index">${logs.no}</td>
+                                    <td role="gridcell" style="" title="${logs.packageName}" aria-describedby="tree_packageNm">${logs.packageName}</td>
+                                    <td role="gridcell" style="" title="${logs.methodName}" aria-describedby="tree_dispMethodNm">${logs.methodName}</td>
+                                    <td role="gridcell" style="text-align:right;" title="${logs.runTime}" aria-describedby="tree_executeTime">${logs.runTime}</td>
+                                    <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isError">false</td>
+                                    <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isSql">false</td>
+                                    <td role="gridcell" style="display:none;" title="false" aria-describedby="tree_isProcedure">false</td>
+                                </tr>
+                            </c:if>
                         </c:forEach>
                     </tbody>
                 </table>
