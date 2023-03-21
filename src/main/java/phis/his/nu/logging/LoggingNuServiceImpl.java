@@ -6,7 +6,7 @@ import java.util.*;
 
 @Service
 public class LoggingNuServiceImpl implements LoggingNuService {
-    public List<Map<String, String>> parseLog(String text) {
+    public List<Map<String, String>> parseLog(String text) throws Exception {
         String[] allLines = text.split("\n");
         List<Map<String, String>> totalReturns = new ArrayList<>();
 
@@ -280,11 +280,18 @@ public class LoggingNuServiceImpl implements LoggingNuService {
                     String param = queryParts[2];
                     param = param.substring(param.indexOf("[") + 1, param.indexOf("]"));
 
+                    // 쿼리에서 오류 발생했을 때
+                    if (queryParts[3].indexOf("ORA-") != -1) {
+                        queryInfo.put("records", "ERROR");
+                        queryInfo.put("statement", allLines[i + 1] + " " + queryParts[3]);
+                    } else {
+                        queryInfo.put("records", queryParts[3]);
+                        queryInfo.put("statement", queryParts[4]);
+                    }
+
                     queryInfo.put("id", queryParts[0]);
                     queryInfo.put("runTime", queryParts[1].replace("msec", "").trim());
                     queryInfo.put("param", param);
-                    queryInfo.put("records", queryParts[3]);
-                    queryInfo.put("statement", queryParts[4]);
                     queryInfo.put("packageName", packageInfo);
                     queryInfo.put("layer", layer + "");
 
@@ -307,8 +314,7 @@ public class LoggingNuServiceImpl implements LoggingNuService {
 
                     updateFlag = true;
                     layer++;
-                }
-                  else if (line.indexOf("execute batch", end) != -1) {
+                } else if (line.indexOf("execute batch", end) != -1) {
                     String batchInfo = line.substring(line.indexOf("execute batch", end) + 14);
 
                     if (batchInfo.indexOf("param[") != 0) {
@@ -331,6 +337,8 @@ public class LoggingNuServiceImpl implements LoggingNuService {
                     String paramNumber = batchInfo.substring(6, batchInfo.indexOf("]"));
                     String paramInfo = batchInfo.substring(batchInfo.indexOf("=") + 2, batchInfo.length() - 1);
                     batchQueryParams.put(paramNumber, paramInfo);
+
+                } else if (line.indexOf("execute call succeeded") != -1) {
 
                 } // 쿼리 시작 정보 종료
             } // 일반로그 종료

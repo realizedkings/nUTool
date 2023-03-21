@@ -5,5 +5,5 @@ import java.util.Map;
 
 public interface LoggingNuService {
     // 문자열 파싱
-    List<Map<String, String>> parseLog(String log);
+    List<Map<String, String>> parseLog(String log) throws Exception;
 }

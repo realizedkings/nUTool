@@ -73,7 +73,8 @@ public class LoggingNuController {
             mav.addObject("logging", logging);
             mav.addObject("originalUrl", "http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage);
         } catch (Exception e) {
-            mav.setViewName("http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage);
+            mav.setViewName("redirect:http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage);
+            e.printStackTrace();
         }
 
         return mav;
