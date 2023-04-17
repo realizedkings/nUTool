@@ -1,4 +1,4 @@
-package phis.his.nu.logging;
+package phis.his.nu.logging.object;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,4 +20,7 @@ public class Logging {
     private String node;
     private String logdt;
     private String instcd;
+    
+    private String logUrl;
+    private String submitIP;
 }

@@ -1,264 +1,383 @@
 package phis.his.nu.logging;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import phis.his.nu.logging.mapper.LoggingNuMapper;
+import phis.his.nu.logging.object.Logging;
 
 @Service
 public class LoggingNuServiceImpl implements LoggingNuService {
-    public List<Map<String, String>> parseLog(String text) throws Exception {
+	
+	@Autowired
+	private LoggingNuMapper loggingNuMapper;
+	
+	// 로그에서 쿼리,프로시저 등 DML문을 만들어서 반환 
+	private Map<String, String> makeSQL(String queryText, Map<String, String[]> batchQueryParams, int layer) {
+		Map<String, String> queryInfo = null;
+		StringBuilder bindingQuery = null;
+		String[] params = null;
+		
+		try {
+			queryText = queryText.replace("\r", "\\r").replace("\n", "\\n"); // 정규표현식 매칭 시 개행문자 일시 제외
+			
+			Pattern queryParsePattern = Pattern.compile("([a-zA-Z0-9\\._]+)\\|([a-z]+)\\|([0-9]+) msec\\|param=\\[(.*)\\]\\|([0-9]+ records)\\|(/\\*\\s.+\\.xml [a-zA-Z0-9]+ \\*/)(.+)\\|.+msec.*");
+			Pattern updateParsePattern = Pattern.compile("([a-zA-Z0-9\\._]+)\\|([a-z\\s]+)\\|([0-9]+) msec\\|param=\\[(.+)\\]\\|([([0-9]+ records)|([0-9]+ insert)|([0-9]+ returned),\\s]+)\\|(.+)(/\\* .+\\.xml [a-zA-Z0-9]+ \\*/) \\|.+msec.*");
+			Pattern batchParsePattern = Pattern.compile("([a-zA-Z0-9\\._]+)\\|([a-z]+)\\|([0-9]+) msec\\|([0-9]+ sqls)\\|(.+)(/\\* .+\\.xml [a-zA-Z0-9]+ \\*/) \\|[0-9]+ msec.*");
+			Pattern procedureParsePattern = Pattern.compile("([a-zA-Z0-9\\._]+)\\|([a-z\\.\\s]+)\\|([0-9]+) msec\\|param=(.+),(.*call\\s[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+\\(.+\\)).*");
+			
+			// 일반 쿼리(execute query)
+			Matcher matcher = queryParsePattern.matcher(queryText);
+			if (matcher.matches()) {
+				queryInfo = new HashMap<String, String>();
+				
+				queryInfo.put("packageName", matcher.group(1));
+				queryInfo.put("dmlflag", matcher.group(2));
+				queryInfo.put("runTime", matcher.group(3));
+				queryInfo.put("records", matcher.group(5));
+				queryInfo.put("statement", matcher.group(6));
+				queryInfo.put("layer", layer + "");
+				
+				bindingQuery = new StringBuilder(matcher.group(7).replace("\\r", "\r").replace("\\n", "\n")); // 개행문자 복원
+				params = "".equals(matcher.group(4)) 
+					   ? new String[0]
+					   : matcher.group(4).split(", ");
+			}
+			
+			// update (execute update || execute update and return keys)
+			matcher = updateParsePattern.matcher(queryText);
+			if (matcher.matches()) {
+				queryInfo = new HashMap<String, String>();
+				queryInfo.put("packageName", matcher.group(1));
+				queryInfo.put("dmlflag", matcher.group(2));
+				queryInfo.put("runTime", matcher.group(3));
+				queryInfo.put("records", matcher.group(5));
+				queryInfo.put("statement", matcher.group(7));
+				queryInfo.put("layer", layer + "");
+				
+				bindingQuery = new StringBuilder(matcher.group(6).replace("\\r", "\r").replace("\\n", "\n")); // 개행문자 복원
+				params = "".equals(matcher.group(4)) 
+						   ? new String[0]
+						   : matcher.group(4).split(", ");
+			}
+			
+			// batch (execute batch)
+			matcher = batchParsePattern.matcher(queryText);
+			if (matcher.matches()) {
+				queryInfo = new HashMap<String, String>();
+				queryInfo.put("packageName", matcher.group(1));
+				queryInfo.put("dmlflag", matcher.group(2));
+				queryInfo.put("runTime", matcher.group(3));
+				queryInfo.put("records", matcher.group(4));
+				queryInfo.put("statement", matcher.group(6));
+				queryInfo.put("layer", layer + "");
+				
+				StringBuilder bindingQueryTemp = new StringBuilder();
+				for (int i = 0; i < batchQueryParams.size(); i++) {
+					bindingQuery = new StringBuilder(matcher.group(5).replace("\\r", "\r").replace("\\n", "\n")); // 개행문자 복원
+    				int bindNumber = bindingQuery.indexOf("?");
+    				params = batchQueryParams.get(i + "");
+
+    				// 바인딩 할 개수 일치 시에만
+    				if ((bindingQuery.length() - bindingQuery.toString().replace("?", "").length())
+    						== params.length) {
+    					for (String param : params) {
+    						bindingQuery.deleteCharAt(bindNumber);
+    						
+    						param = "null".equals(param) ? param 
+        							: "'" + param + "'";
+    						bindingQuery.insert(bindNumber, param);
+    						
+    						bindNumber = bindingQuery.indexOf("?");
+    					}
+    				} else {
+    					bindingQuery.insert(0, "Parameter 에 \", \" 가 포함되어 있어 바인딩이 취소되었습니다.");
+    					bindingQuery.append("\r\n 파라미터    : " + Arrays.toString(params));
+    					bindingQuery.append("\r\n 물음표 개수 : " + (bindingQuery.length() - bindingQuery.toString().replace("?", "").length()));
+    				}
+    				
+    				bindingQueryTemp.append("-- " + (i+1) + " 번째 배치 \r\n" + queryInfo.get("statement") + "\r\n" + bindingQuery.toString() + ";\r\n");
+				}
+				
+				queryInfo.put("isQuery", "Y");
+				queryInfo.put("query", bindingQueryTemp.toString());
+				
+				return queryInfo; // 배치는 여기까지만
+			}
+			
+			// 프로시저인 경우
+			matcher = procedureParsePattern.matcher(queryText);
+			if (matcher.matches()) {
+				StringBuilder bindingProcedure = null;
+				queryInfo = new HashMap<String, String>();
+				
+				queryInfo.put("packageName", matcher.group(1));
+				queryInfo.put("dmlflag", "call procedure");
+				queryInfo.put("runTime", matcher.group(3));
+				queryInfo.put("records", "");
+				queryInfo.put("layer", layer + "");
+				
+				Pattern callPattern = Pattern.compile("(.*)call\\s([a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+)(\\(.+\\)).*");
+				Matcher subMatcher = callPattern.matcher(matcher.group(5));
+				
+				if (!subMatcher.matches()) {
+					return null;
+				} 
+				
+				// 1. 파라미터에 IN 만 있는경우 call 붙여서 그냥 뿌리기
+				// 2. 파라미터에 OUT도 있는 경우 PLSQL 형태로 만들어주기 그리고 call 지우기
+				String preText = subMatcher.group(1).replace("\\r", "\r").replace("\\n", "\n");
+				String procedureName = subMatcher.group(2).replace("\\r", "\r").replace("\\n", "\n");
+				String procedureContext = subMatcher.group(3).replace("\\r", "\r").replace("\\n", "\n");
+				
+				bindingProcedure = new StringBuilder(procedureContext); // 프로시저 파라미터 작업용 
+				String[] parameters = matcher.group(4).split(",");		// 파라미터 목록
+				int bindNumber = bindingProcedure.indexOf("?");			// 교체할 위치
+				boolean outFlag = false;								// OUT파라미터가 존재하는지 여부
+				
+				if (parameters.length 
+						== bindingProcedure.length() - bindingProcedure.toString().replace("?", "").length()) {
+					Map<String, String> outParams = new HashMap<String, String>();
+					
+					for (int k = 0; k < parameters.length; k++) {
+						String param = parameters[k];
+						
+						matcher = Pattern.compile("(.+):([0-9]+):([0-9]+)(.*)").matcher(param);
+						if (matcher.matches()) {
+							String paramName = matcher.group(1);
+							String inoutFlag = matcher.group(2);
+							String dataType  = matcher.group(3);
+							String paramContext = matcher.group(4).replace("[", "").replace("]", "");
+							String replaceText = "";
+							
+							if ("2".equals(inoutFlag)) { // OUT
+								replaceText = paramName + " /* " + paramName + ":OUT */ "; 
+								
+								if ("12".equals(dataType)) { // VARCHAR2(4000)
+									outParams.put(paramName, paramName + " VARCHAR2(4000);");
+								} else if ("4".equals(dataType)) { // INTEGER(38)
+									outParams.put(paramName, paramName + " INTEGER(38);");
+								}
+								
+								outFlag = true; // 한 번이라도 OUT이 존재하면 플래그 설정
+							} else if ("1".equals(inoutFlag)) { // IN
+								paramContext = "null".equals(paramContext) ? paramContext : "'" + paramContext + "'";
+								replaceText = paramContext + " /* " + paramName + ":IN */ ";
+							}
+							
+							if (k == parameters.length - 1) {
+								replaceText = replaceText.substring(0, replaceText.length() - 1);
+							}
+							
+							bindingProcedure.deleteCharAt(bindNumber);
+							bindingProcedure.insert(bindNumber, replaceText);
+							
+							bindNumber = bindingProcedure.indexOf("?");
+						}
+					}
+					
+					// OUT파라미터가 존재할 때 
+					if (outFlag) {
+						StringBuilder procedureTemp = new StringBuilder();
+						
+						procedureTemp.append("DECLARE \r\n");
+						
+						Iterator<String> outParamKeys = outParams.keySet().iterator();
+						while (outParamKeys.hasNext()) {
+							String outParamName = outParamKeys.next();
+							String outParamDeclare = outParams.get(outParamName);
+							
+							procedureTemp.append("    " + outParamDeclare + "\r\n");
+						}
+						
+						procedureTemp.append("    BEGIN " + preText + procedureName + bindingProcedure + ";\r\n");
+						
+						outParamKeys = outParams.keySet().iterator();
+						while (outParamKeys.hasNext()) {
+							String outParamName = outParamKeys.next();
+							
+							procedureTemp.append("DBMS_OUTPUT.PUT_LINE(" + "'" + outParamName + " : ' || " + outParamName + ");\r\n");
+						}
+						procedureTemp.append("END;");
+						
+						bindingProcedure = procedureTemp;
+					} else {	// IN만 존재 시 
+						bindingProcedure.insert(0, preText + "call " + procedureName);
+					}
+				} else {
+					bindingProcedure.insert(0,  "Parameter 에 \", \" 가 포함되어 있어 바인딩이 취소되었습니다.");
+				}
+				
+				queryInfo.put("statement", procedureName);
+				queryInfo.put("isQuery", "Y");
+				queryInfo.put("query", bindingProcedure.toString());
+				
+				return queryInfo;
+			}
+			
+			// 쿼리 내용 없는경우 그냥 종료
+			if (bindingQuery == null) {
+				System.out.println(queryText.replace("\\r", "\r").replace("\\n", "\n"));
+				return null;
+			}
+    		
+			// 바인딩 할 개수 일치 시에만
+			int bindNumber = bindingQuery.indexOf("?");
+			if (((bindingQuery.length() - bindingQuery.toString().replace("?", "").length())
+					== params.length) || params.length == 0) {
+				for (String param : params) {
+					bindingQuery.deleteCharAt(bindNumber);
+					
+					param = "null".equals(param) ? param 
+							: "'" + param + "'";
+					bindingQuery.insert(bindNumber, param);
+					
+					bindNumber = bindingQuery.indexOf("?");
+				}
+			} else {
+				bindingQuery.insert(0, "Parameter 에 \", \" 가 포함되어 있어 바인딩이 취소되었습니다.");
+				bindingQuery.append("\r\n 파라미터    : " + Arrays.toString(params));
+				bindingQuery.append("\r\n 물음표 개수 : " + (bindingQuery.length() - bindingQuery.toString().replace("?", "").length()));
+			}
+			
+			queryInfo.put("isQuery", "Y");
+			queryInfo.put("query", queryInfo.get("statement") + "\r\n" + bindingQuery.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+			return null;
+		}
+		
+		return queryInfo;
+	}
+	
+	@Override
+	public List<Map<String, String>> parseLog(String text) throws Exception {
         String[] allLines = text.split("\n");
         List<Map<String, String>> totalReturns = new ArrayList<>();
-
+        
         Map<String, String> queryInfo = null;
-        Map<String, Object> batchQueryInfo = null;
-        Map<String, String> batchQueryParams = new HashMap<>();    // 미리생성해 둬야함
+        Map<String, String[]> batchQueryParams = new HashMap<>();    // 미리생성해 둬야함
         Map<String, String> errorInfo = null; // 에러 발생시 사용 변수
         StringBuilder queryString = null;
         StringBuilder errorString = null;
 
         int layer = 0;
-        boolean queryFlag = false;
-        boolean updateFlag = false;
-        boolean batchFlag = false;
+        boolean queryStartFlag = false;
         boolean errorFlag = false;
 
+        // 패턴나열 
+        Pattern basicPattern = Pattern.compile("([0-9]{1,9})\\[([a-zA-Z0-9=\\.:\\s]+)\\]\\[([0-9\\.:\\s]+)\\]\\s\\[([a-zA-Z0-9=\\.:\\s]+)\\]\\s\\[([a-zA-Z0-9=\\.:\\s_]+)\\]\\s(.+)");
+        Pattern methodStartPattern = Pattern.compile("^(.+\\(\\))\\sstarts.$");
+        Pattern methodEndPattern = Pattern.compile("^(.+\\(\\))\\sends.\\(([0-9]+\\smsecs)\\}");
+        Pattern queryStartPattern = Pattern.compile("^execute\\s(query|update and return keys|batch|update|call succeeded.)\\s(.+)");
+        Pattern queryBatchStartPattern = Pattern.compile("^execute\\s(batch)\\sparam\\[([0-9]+)\\]=\\[(.*)\\]");
+        
+        // 전체 로그 1개 line씩 for문 시작 
         for (int i = 0; i < allLines.length; i++) {
             String line = allLines[i];
-
-            // 쿼리문 셋팅 시작
-            if (queryFlag && queryInfo != null) { // select 쿼리문 정보
-                queryString.append(line + "\r\n"); // 쿼리문 삽입
-                // 다음 행에 쿼리 종료 시 전체 리스트에 넣고 종료
-                if (i != allLines.length - 2
-                        && (allLines[i + 2].length() - allLines[i + 2].replace("]", "").length()) >= 4
-                        && (allLines[i + 2].length() - allLines[i + 2].replace("[", "").length()) >= 4) {
-                    StringBuilder bindingQuery = new StringBuilder(queryString.toString());
-                    String[] params = queryInfo.get("param").split(", ");
-                    int bindNumber = bindingQuery.indexOf("?");
-
-                    // 바인딩 할 개수 일치 시에만
-                    if ((bindingQuery.length() - bindingQuery.toString().replace("?", "").length())
-                            == params.length) {
-                        for (String param : params) {
-                            bindingQuery.deleteCharAt(bindNumber);
-                            bindingQuery.insert(bindNumber, "'" + param + "'");
-
-                            bindNumber = bindingQuery.indexOf("?");
-                        }
-                    } else {
-                        bindingQuery.insert(0, "Parameter 에 \", \" 가 포함되어 있어 바인딩이 취소되었습니다.");
-                    }
-
-                    queryInfo.put("query", queryInfo.get("statement") + "\r\n" + bindingQuery.toString());
-                    queryInfo.put("isQuery", "Y");
-
-                    queryString = null;
-                    queryFlag = false;
-                    layer--;
-
-                    totalReturns.add(queryInfo);
-                }
-            } else if (updateFlag && queryInfo != null) {
-                // 다음 행에 쿼리 종료 시 전체 리스트에 넣고 종료
-                if (i != allLines.length - 2
-                        && (allLines[i + 1].length() - allLines[i + 1].replace("]", "").length()) >= 4
-                        && (allLines[i + 1].length() - allLines[i + 1].replace("[", "").length()) >= 4) {
-                    StringBuilder bindingQuery = new StringBuilder(queryString.toString());
-                    String[] params = queryInfo.get("param").split(", ");
-                    int bindNumber = bindingQuery.indexOf("?");
-
-                    String statement = line.split("[|]")[0];
-                    queryInfo.put("statement", statement);
-
-                    // 바인딩 할 개수 일치 시에만
-                    if ((bindingQuery.length() - bindingQuery.toString().replace("?", "").length())
-                            == params.length) {
-                        for (String param : params) {
-                            bindingQuery.deleteCharAt(bindNumber);
-                            bindingQuery.insert(bindNumber, "'" + param + "'");
-
-                            bindNumber = bindingQuery.indexOf("?");
-                        }
-                    } else {
-                        bindingQuery.insert(0, "Parameter 에 \", \" 가 포함되어 있어 바인딩이 취소되었습니다.");
-                    }
-
-                    queryInfo.put("query", queryInfo.get("statement") + "\r\n" + bindingQuery.toString());
-                    queryInfo.put("isQuery", "Y");
-
-                    totalReturns.add(queryInfo);
-
-                    queryString = null;
-                    updateFlag = false;
-                    layer--;
-
-                    continue;
-                }
-
-                queryString.append(line + "\r\n"); // 쿼리문 삽입
-            } else if (batchFlag) { // batch 쿼리 삽입
-                // 다음 행에 쿼리 종료 시 전체 리스트에 넣고 종료
-                if (i != allLines.length - 2
-                        && (allLines[i + 1].length() - allLines[i + 1].replace("]", "").length()) >= 4
-                        && (allLines[i + 1].length() - allLines[i + 1].replace("[", "").length()) >= 4) {
-                    StringBuilder bindingQuery = null;
-                    StringBuilder batchBindingQuery = new StringBuilder();
-                    queryInfo = new HashMap<>();
-
-                    Map<String, String> batchParams = (Map) batchQueryInfo.get("param");
-
-                    String statement = line.split("[|]")[0];
-                    queryInfo.put("statement", statement);
-
-                    for (int j = 0; j < batchParams.size(); j++) {
-                        bindingQuery = new StringBuilder(queryString.toString());
-                        String[] params = batchParams.get(j + "").split(", ");
-
-                        int bindNumber = bindingQuery.indexOf("?");
-
-                        // 바인딩 할 개수 일치 시에만
-                        if ((bindingQuery.length() - bindingQuery.toString().replace("?", "").length())
-                                == params.length) {
-                            for (String param : params) {
-                                bindingQuery.deleteCharAt(bindNumber);
-                                bindingQuery.insert(bindNumber, "'" + param + "'");
-
-                                bindNumber = bindingQuery.indexOf("?");
-                            }
-                        } else {
-                            bindingQuery.insert(0, "Parameter 에 \", \" 가 포함되어 있어 바인딩이 취소되었습니다.");
-                        }
-
-                        batchBindingQuery.append("-- " + (j+1) + " 번째 배치 \r\n" + queryInfo.get("statement") + "\r\n" + bindingQuery.toString() + ";\r\n");
-                    }
-
-                    queryInfo.put("query", batchBindingQuery.toString());
-                    queryInfo.put("isQuery", "Y");
-                    queryInfo.put("records", (String) batchQueryInfo.get("records"));
-                    queryInfo.put("runTime", (String) batchQueryInfo.get("runTime"));
-                    queryInfo.put("packageName", (String) batchQueryInfo.get("packageName"));
-                    queryInfo.put("layer", (String) batchQueryInfo.get("layer"));
-
-                    totalReturns.add(queryInfo);
-
-                    queryString = null;
-                    batchQueryInfo = null;
-                    queryInfo = null;
-                    batchFlag = false;
-                    layer--;
-
-                    continue;
-                }
-
-                queryString.append(line + "\r\n"); // 쿼리문 삽입
-            }
-            // 쿼리문 셋팅 종료
-
-            // 에러 셋팅 start
+            Matcher matcher = basicPattern.matcher(line);
+            Matcher subMatcher = null;
+            
+            // 쿼리 저장 시작 
+            if (queryStartFlag) {
+            	queryString.append(line + "\r\n");
+            	
+            	// 다음행이 일반 로그 정보일 때
+            	matcher = basicPattern.matcher(allLines[i + 1]);
+            	if (matcher.matches()) {
+            		queryInfo = null;
+            		
+            		// 쿼리로그 전체, 배치인경우 파라미터, 계층
+            		queryInfo = makeSQL(queryString.toString(), batchQueryParams, layer);
+            		
+            		if (queryInfo == null) { 
+            			throw new Exception();
+            		}
+                    
+            		totalReturns.add(queryInfo);
+            		
+            		batchQueryParams = new HashMap<>();
+            		queryString = null;
+            		queryStartFlag = false;
+            		layer--;
+            		
+            		continue;
+            	}
+            	
+            	continue;
+            } 
+            
+            //// 에러처리 /////
             if (errorFlag) {
-                errorString.append(line + "\r\n");
-
-                // 다음행 행 종료시 바인딩 하고 끝
-                if (i < allLines.length - 1
-                        && (allLines[i + 1].length() - allLines[i + 1].replace("]", "").length()) >= 4
-                        && (allLines[i + 1].length() - allLines[i + 1].replace("[", "").length()) >= 4) {
-                    errorInfo.put("methodName", errorString.toString());
-
-                    totalReturns.add(errorInfo);
-
-                    errorFlag = false;
-                    continue;
-                }
+            	errorString.append(line + "\r\n");
+            	
+            	// 마지막행 이거나 다음 행이 일반 로그일 경우 에러수집 정지
+            	matcher = basicPattern.matcher(allLines[i + 1]);
+            	if ((i == allLines.length - 1) 
+            			|| matcher.matches()) {
+            		errorInfo.put("methodName", errorString.toString());
+            		totalReturns.add(errorInfo);
+            		errorFlag = false;
+            	}
             }
-            // 에러 셋팅 end
-
-
-            // 일반 로그
-            if ((line.length() - line.replace("]", "").length()) >= 4
-                    && (line.length() - line.replace("[", "").length()) >= 4) {
-                int start = 0;
-                int end = 0;
-
-                start = line.indexOf("[", start);
-                end = line.indexOf("]", end);
-                String nodeInfo = line.substring(start + 1, end);
-
-                start = line.indexOf("[", start + 1);
-                end = line.indexOf("]", end + 1);
-                String timeInfo = line.substring(start + 1, end);
-
-                start = line.indexOf("[", start + 1);
-                end = line.indexOf("]", end + 1);
-                String printInfo = line.substring(start + 1, end).trim();
-
-                start = line.indexOf("[", start + 1);
-                end = line.indexOf("]", end + 1);
-                String packageInfo = line.substring(start + 1, end).trim();
-
-                // 에러 정보
-                if (printInfo != null && printInfo.indexOf("ERROR") != -1) {
-                    String methodName = line.substring(end + 1);
-
-                    HashMap<String, String> methodInfo = new HashMap<>();
-                    methodInfo.put("methodName", methodName);
-                    methodInfo.put("packageName", packageInfo);
-                    methodInfo.put("layer", layer + "");
-                    methodInfo.put("isQuery", "E");  // 에러
-
-                    if ("".equals(methodName.trim())) {
-                        errorFlag = true;
-                        errorString = new StringBuilder();
-                        errorInfo = methodInfo;
-                    } else {
-                        totalReturns.add(methodInfo);
-                    }
-                }
-
-                // 메소드 시작 정보
-                if (line.indexOf("starts.", end) != -1) {
-                    String methodName = line.substring(end + 1, line.indexOf("starts.", end));
-
-                    if ("getConnection()".equals(methodName.trim())
+            
+            //// 일반 로그 파싱 및 판별 영역 ////
+            // 일반 로그 시작 
+            if (matcher.matches()) {
+            	String transactionId = matcher.group(1);
+            	String nodeInfo = matcher.group(2);
+            	String timeInfo = matcher.group(3);
+            	String logState = matcher.group(4);
+            	String packageName = matcher.group(5);
+            	String logContext = matcher.group(6);
+            	
+            	// 메소드 시작
+            	matcher = methodStartPattern.matcher(logContext);
+            	if (matcher.matches()) {
+            		String methodName = matcher.group(1);
+            		
+            		if ("getConnection()".equals(methodName.trim())
                             || "toString()".equals(methodName.trim())) continue;
-
-                    HashMap<String, String> methodInfo = new HashMap<>();
+            		
+            		HashMap<String, String> methodInfo = new HashMap<>();
                     methodInfo.put("methodName", methodName);
-                    methodInfo.put("packageName", packageInfo);
+                    methodInfo.put("packageName", packageName);
                     methodInfo.put("layer", layer + "");
                     methodInfo.put("isQuery", "N");
 
                     if (i == 0) {
                         methodInfo.put("startTime", timeInfo);
                     }
-
+                    
                     totalReturns.add(methodInfo);
-
-                    layer++;
-                }
-
-                // 메소드 종료 정보
-                if (line.indexOf("ends.", end) != -1) {
-                    String methodName = line.substring(end + 1, line.indexOf("ends.", end));
-                    String runTime = line.substring(line.lastIndexOf("(") + 1, line.length()).replace("}", "");
-
-                    if ("getConnection()".equals(methodName.trim())
+            		
+            		layer++;
+            	}
+            	
+            	// 메소드 종료
+            	matcher = methodEndPattern.matcher(logContext);
+            	if (matcher.matches()) {
+            		String methodName = matcher.group(1); 
+            		String runTime = matcher.group(2);
+            		
+            		if ("getConnection()".equals(methodName.trim())
                             || "toString()".equals(methodName.trim())) {
                         continue;
                     }  // 커넥션 보기 싫어서 페스
 
-//                    HashMap<String, String> methodInfo = new HashMap<>();
-//                    methodInfo.put("methodName", methodName);
-//                    methodInfo.put("runTime", runTime.replace("msecs", "").trim());
-//                    methodInfo.put("package", packageInfo);
-//                    methodInfo.put("layer", (layer - 1) + "");
-//                    methodInfo.put("isQuery", "N");
-//
-//                    totalReturns.add(methodInfo);
-
                     // 시작 정보에 종료 정보 중 수행 시간만 삽입
                     for (int j = totalReturns.size() - 1; j >= 0; j--) {
-                        Map element = totalReturns.get(j);
+                        Map<String, String> element = totalReturns.get(j);
 
                         if ("N".equals(element.get("isQuery")) && element.get("methodName").equals(methodName)
                                         && element.get("layer").equals((layer - 1) + "")) {
@@ -269,79 +388,48 @@ public class LoggingNuServiceImpl implements LoggingNuService {
                     }
 
                     layer--;
-                }
+            	}
+            	
+            	// 쿼리 시작
+            	subMatcher = queryBatchStartPattern.matcher(logContext);	// 배치 쿼리인지
+            	matcher = queryStartPattern.matcher(logContext);			// 그외 쿼리인지 
+            	
+            	// 쿼리면서, 배치쿼리 아닌 것
+            	if (matcher.matches() && !subMatcher.matches()  // 일반쿼리, 업데이트 쿼리 정보 입력, 
+            			&& !logContext.matches(".*ORA-[0-9]+.*")) { // SQL 오류 아닐 때 
+            		String dmlFlag = matcher.group(1);			// query, update, batch, call .. etc
+            		String queryStartText = matcher.group(2);   // parameters info, records, etc.. 
+            		
+            		queryString = new StringBuilder();
+            		queryString.append(packageName + "|" 
+            						   + dmlFlag + "" + queryStartText + "\r\n");
+            		
+            		queryStartFlag = true;
+            		
+            		layer++;
+            	} else if (subMatcher.matches()) {	// 배치쿼리 시작 및 파라미터 정보 입력 
+            		String paramCount = subMatcher.group(2);
+            		String[] parameters = subMatcher.group(3).split("(,\\s)");
+            		
+            		batchQueryParams.put(paramCount, parameters);
+            	}
+            	
+            	// 에러 발생 정보 
+            	if ("ERROR".equals(logState.replace(" ", ""))) {
+                    errorInfo = new HashMap<>();
+                    errorInfo.put("methodName", logContext);
+                    errorInfo.put("packageName", packageName);
+                    errorInfo.put("layer", layer + "");
+                    errorInfo.put("isQuery", "E");  // 에러
 
-                // 쿼리 시작 정보
-                if (line.indexOf("execute query", end) != -1) {
-                    String[] queryParts = line.substring(line.indexOf("execute query", end) + 14).split("[|]");
-                    queryString = new StringBuilder();
-                    queryInfo = new HashMap<String, String>();
-
-                    String param = queryParts[2];
-                    param = param.substring(param.indexOf("[") + 1, param.indexOf("]"));
-
-                    // 쿼리에서 오류 발생했을 때
-                    if (queryParts[3].indexOf("ORA-") != -1) {
-                        queryInfo.put("records", "ERROR");
-                        queryInfo.put("statement", allLines[i + 1] + " " + queryParts[3]);
-                    } else {
-                        queryInfo.put("records", queryParts[3]);
-                        queryInfo.put("statement", queryParts[4]);
-                    }
-
-                    queryInfo.put("id", queryParts[0]);
-                    queryInfo.put("runTime", queryParts[1].replace("msec", "").trim());
-                    queryInfo.put("param", param);
-                    queryInfo.put("packageName", packageInfo);
-                    queryInfo.put("layer", layer + "");
-
-                    queryFlag = true;
+                    errorString = new StringBuilder();
+                    errorString.append(line);
+                    
+                    errorFlag = true;
+                    
                     layer++;
-                } else if (line.indexOf("execute update", end) != -1) {
-                    String[] queryParts = line.substring(line.indexOf("execute update", end) + 14).split("[|]");
-                    queryString = new StringBuilder();
-                    queryInfo = new HashMap<String, String>();
-
-                    String param = queryParts[2];
-                    param = param.substring(param.indexOf("[") + 1, param.indexOf("]"));
-
-                    queryInfo.put("id", queryParts[0]);
-                    queryInfo.put("runTime", queryParts[1].replace("msec", "").trim());
-                    queryInfo.put("param", param);
-                    queryInfo.put("records", queryParts[3]);
-                    queryInfo.put("packageName", packageInfo);
-                    queryInfo.put("layer", layer + "");
-
-                    updateFlag = true;
-                    layer++;
-                } else if (line.indexOf("execute batch", end) != -1) {
-                    String batchInfo = line.substring(line.indexOf("execute batch", end) + 14);
-
-                    if (batchInfo.indexOf("param[") != 0) {
-                        batchQueryInfo = new HashMap<>();
-                        queryString = new StringBuilder();
-
-                        batchQueryInfo.put("records", batchInfo.split("[|]")[2]);
-                        batchQueryInfo.put("runTime", batchInfo.split("[|]")[1].replace("msec", "").trim());
-                        batchQueryInfo.put("param", batchQueryParams);
-                        batchQueryInfo.put("packageName", packageInfo);
-                        batchQueryInfo.put("layer", layer + "");
-
-                        batchQueryParams = new HashMap<>(); // params 넘겼으니 초기화
-                        batchFlag = true;
-                        layer++;
-
-                        continue;
-                    }
-
-                    String paramNumber = batchInfo.substring(6, batchInfo.indexOf("]"));
-                    String paramInfo = batchInfo.substring(batchInfo.indexOf("=") + 2, batchInfo.length() - 1);
-                    batchQueryParams.put(paramNumber, paramInfo);
-
-                } else if (line.indexOf("execute call succeeded") != -1) {
-
-                } // 쿼리 시작 정보 종료
-            } // 일반로그 종료
+            	}
+            } // 일반 로그 if문 종료 
         } // for 문 종료
 
         // 문자열 다듬기
@@ -356,7 +444,7 @@ public class LoggingNuServiceImpl implements LoggingNuService {
             }
 
             if ("Y".equals(printMethod.get("isQuery"))) {
-                printMethod.put("methodName", "execute query (" + printMethod.get("records") + ")\r\n"
+                printMethod.put("methodName", "execute " + printMethod.get("dmlflag") + " (" + printMethod.get("records") + ")\r\n"
                         + printMethod.get("statement"));
                 printMethod.put("packageName", tabText + "○" + printMethod.get("packageName"));
             } else if ("N".equals(printMethod.get("isQuery"))) {
@@ -374,4 +462,16 @@ public class LoggingNuServiceImpl implements LoggingNuService {
 
         return totalReturns;
     }
+	
+	public void insertSubmitHistory(Logging logging) {
+		loggingNuMapper.insertSubmitHistory(logging);
+	}
+	
+	public void insertDetailLogHistory(Logging logging) {
+		loggingNuMapper.insertDetailLogHistory(logging);
+	}
+	
+	public void insertErrorHistory(Logging logging) {
+		loggingNuMapper.insertErrorHistory(logging);
+	}
 }

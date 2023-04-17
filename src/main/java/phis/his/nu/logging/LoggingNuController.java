@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import phis.his.nu.logging.object.Logging;
+
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -60,23 +62,28 @@ public class LoggingNuController {
                                       "&ctx=" + logging.getCtx()  +
                                      "&node=" + logging.getNode() +
                                      "&date=" + logging.getDate();
-
-        Document doc = Jsoup.connect("http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage).timeout(1000).get();
-        doc.outputSettings().prettyPrint(false);
-        Elements preText = doc.getElementsByTag("body");
-
-        List<Map<String, String>> logs = null;
+        
+        String detailLogURL = "http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage;
+        logging.setLogUrl(detailLogURL);
         try {
+        	Document doc = Jsoup.connect(detailLogURL).timeout(1000).get();
+        	doc.outputSettings().prettyPrint(false);
+        	Elements preText = doc.getElementsByTag("body");
+        	
+        	List<Map<String, String>> logs = null;
+        	
             logs = loggingNuService.parseLog(preText.html());
-
+            
             mav.addObject("logs", logs);
             mav.addObject("logging", logging);
             mav.addObject("originalUrl", "http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage);
         } catch (Exception e) {
-            mav.setViewName("redirect:http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage);
+            mav.setViewName("redirect:" + detailLogURL);
+            System.out.println(" REDIRECT ERROR : " + detailLogURL);
             e.printStackTrace();
+//            loggingNuService.insertErrorHistory(logging);
         }
-
+//        loggingNuService.insertDetailLogHistory(logging);
         return mav;
     }
     
@@ -113,11 +120,13 @@ public class LoggingNuController {
                 continue;
             }
         }
+        
+//        loggingNuService.insertSubmitHistory(logging);
 
         ModelAndView mav = new ModelAndView("logSearch");
         mav.addObject("tableBody", table.html());
         mav.addObject("logging", logging);
-
+        
         return mav;
     }
 }

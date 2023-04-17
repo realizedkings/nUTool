@@ -12,6 +12,7 @@
 </head>
 
 <body>
+<h3 style="color:red">계층 로그 미작동 시 EMR 팀 기록간호 Unit 왕수헌에게 문의해주세요 </h3>
 <form id="req" action="/logging/cmcnu/trlog.nu" method="GET">
     ip_addr: <input type="text" name="ip_addr" value="${logging.ip_addr}">
     svc_name: <input type="text" name="svc_name" value="${logging.svc_name}">
