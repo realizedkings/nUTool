@@ -27,6 +27,7 @@ import phis.his.nu.logging.object.Logging;
 @RequestMapping("/logging")
 public class LoggingNuController {
     private LoggingNuService loggingNuService;
+    
     private Logger log = LoggerFactory.getLogger(phis.his.nu.logging.LoggingNuController.class);	
     
     @Autowired
@@ -72,12 +73,11 @@ public class LoggingNuController {
         logging.setLogUrl(detailLogURL);
         logging.setSubmitIp(getIP(request));
         try {
-        	Document doc = Jsoup.connect(detailLogURL).timeout(1000).get();
+        	Document doc = Jsoup.connect(detailLogURL).timeout(5000).get();
         	doc.outputSettings().prettyPrint(false);
         	Elements preText = doc.getElementsByTag("body");
         	
         	List<Map<String, String>> logs = null;
-        	
             logs = loggingNuService.parseLog(preText.html());
             
             mav.addObject("logs", logs);
