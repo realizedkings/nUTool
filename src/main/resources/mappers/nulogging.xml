@@ -8,17 +8,65 @@
 		FROM EDU.PIF_22200067_EMPLOY_INFO
 	   WHERE ROWNUM = 1
     </select>
-    <!-- 
+    
     <insert id="insertSubmitHistory" parameterType="phis.his.nu.logging.object.Logging">
-    	SELECT 1
-    	  FROM DUAL
+    	INSERT INTO EDU.LOG_SUBMIT_HIST
+		      ( SUBMIT_DATE
+		      , SUBMIT_IP
+		      , SUBMIT_INSTCD
+		      , SVC_NAME
+		      , USER_ID
+		      , IP_ADDR
+		      , TR_ID
+		      , REQ_DATE
+		      , SVC_URL
+		      , SUCC_YN
+		      , OP_NAME  
+		       )
+		VALUES ( SYSTIMESTAMP
+		       , #{submitIp}
+		       , #{instcd}
+		       , #{svc_name}
+		       , #{user_id}
+		       , #{ip_addr}
+		       , #{tr_id}
+		       , #{date}
+		       , #{svc_url}
+		       , #{succ_yn}
+		       , #{op_name}
+		       )
     </insert>
-    	SELECT 1
-    	  FROM DUAL
+    
+
     <insert id="insertDetailLogHistory" parameterType="phis.his.nu.logging.object.Logging">
+		INSERT INTO EDU.LOG_DETAIL_HIST
+		       ( OPEN_DATE
+		       , OPENER_IP
+		       , TRID
+		       , CTX
+		       , NODE
+		       , LOG_DT
+		       , INSTCD 
+		       , LOGURL
+		       , ERROR_YN
+		       )
+		VALUES ( SYSTIMESTAMP 
+		       , #{submitIp}
+		       , #{trid}
+		       , #{ctx}
+		       , #{node}
+		       , #{date}
+		       , #{instcd}
+		       , #{logUrl}
+		   <if test='errorYn == "Y"' >
+		   	   , #{errorYn}    
+		   </if>
+		   <if test='errorYn == null' >
+		   	   , 'N'
+		   </if>
+		        )    	
     </insert>
-    	SELECT 1
-    	  FROM DUAL
+    <!-- 
     <insert id="insertErrorHistory" parameterType="phis.his.nu.logging.object.Logging">
     </insert>
     -->
