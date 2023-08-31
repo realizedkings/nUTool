@@ -1,9 +1,20 @@
 package phis.his.nu.logging;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,17 +23,12 @@ import org.springframework.web.servlet.ModelAndView;
 
 import phis.his.nu.logging.object.Logging;
 
-import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-
 @Controller
 @RequestMapping("/logging")
 public class LoggingNuController {
     private LoggingNuService loggingNuService;
-
+    private Logger log = LoggerFactory.getLogger(phis.his.nu.logging.LoggingNuController.class);	
+    
     @Autowired
     public void setLoggingNuService(LoggingNuService loggingNuService) {
         this.loggingNuService = loggingNuService;
@@ -31,32 +37,31 @@ public class LoggingNuController {
     @GetMapping("/main")
     public ModelAndView main(HttpServletRequest request) {
         ModelAndView mav = new ModelAndView("main");
-        String ip = request.getHeader("X-Forwarded-For");
-
-        if (ip == null) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null) {
-            ip = request.getHeader("HTTP_CLIENT_IP");
-        }
-        if (ip == null) {
-            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-        }
-        if (ip == null) {
-            ip = request.getRemoteAddr();
-        }
-
-        mav.addObject("ip_addr", ip);
+        mav.addObject("ip_addr", getIP(request));
 
         return mav;
     }
-
+    
+    private String getIP(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        
+        if (ip == null)
+          ip = request.getHeader("Proxy-Client-IP"); 
+        if (ip == null)
+          ip = request.getHeader("WL-Proxy-Client-IP"); 
+        if (ip == null)
+          ip = request.getHeader("HTTP_CLIENT_IP"); 
+        if (ip == null)
+          ip = request.getHeader("HTTP_X_FORWARDED_FOR"); 
+        if (ip == null)
+          ip = request.getRemoteAddr(); 
+        
+        return ip;
+      }
+    
     // 상세 로그 열기
     @GetMapping("/cmcnu/ulog.nu")
-    public ModelAndView getDetailLog(Logging logging) throws Exception {
+    public ModelAndView getDetailLog(Logging logging, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("logDetail");
         String queryMessage = "ulog.nu?trid=" + logging.getTrid() +
                                       "&ctx=" + logging.getCtx()  +
@@ -65,6 +70,7 @@ public class LoggingNuController {
         
         String detailLogURL = "http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage;
         logging.setLogUrl(detailLogURL);
+        logging.setSubmitIp(getIP(request));
         try {
         	Document doc = Jsoup.connect(detailLogURL).timeout(1000).get();
         	doc.outputSettings().prettyPrint(false);
@@ -79,17 +85,18 @@ public class LoggingNuController {
             mav.addObject("originalUrl", "http://emr" + logging.getInstcd() + "edu.cmcnu.or.kr/cmcnu/" + queryMessage);
         } catch (Exception e) {
             mav.setViewName("redirect:" + detailLogURL);
-            System.out.println(" REDIRECT ERROR : " + detailLogURL);
-            e.printStackTrace();
-//            loggingNuService.insertErrorHistory(logging);
+            log.debug(" REDIRECT ERROR : " + detailLogURL);
+            log.debug(e.getMessage());
         }
-//        loggingNuService.insertDetailLogHistory(logging);
+        
+        loggingNuService.insertDetailLogHistory(logging);
+        
         return mav;
     }
     
     // submit 보내기
     @GetMapping("/cmcnu/trlog.nu")
-    public ModelAndView searchLog(Logging logging, HttpServletRequest request) throws Exception {
+    public ModelAndView searchLog(Logging logging, HttpServletRequest request, HttpServletResponse response) throws Exception {
         if (logging.getDate() == null
                         || "".equals(logging.getDate())) {    // 처음 페이지 오픈 시 날짜 지정
             LocalDateTime now = LocalDateTime.now();
@@ -116,13 +123,26 @@ public class LoggingNuController {
                 table = doc.getElementsByTag("table");
                 break;
             } catch (HttpStatusException exception) {
-                connectCount++;
-                continue;
+            	this.log.debug(exception.getMessage());
+            	connectCount++;
             }
         }
         
-//        loggingNuService.insertSubmitHistory(logging);
-
+        Cookie[] cookies = request.getCookies();
+        Cookie submitCookie = null;
+        boolean submitTimeFlag = false;
+        for (Cookie cookie : cookies) {
+          if ("submitTime".equals(cookie.getName()))
+            submitTimeFlag = true; 
+        } 
+        if (!submitTimeFlag) {
+          logging.setSubmitIp(getIP(request));
+          this.loggingNuService.insertSubmitHistory(logging);
+          submitCookie = new Cookie("submitTime", "Y");
+          submitCookie.setMaxAge(60);
+          response.addCookie(submitCookie);
+        } 
+        
         ModelAndView mav = new ModelAndView("logSearch");
         mav.addObject("tableBody", table.html());
         mav.addObject("logging", logging);
