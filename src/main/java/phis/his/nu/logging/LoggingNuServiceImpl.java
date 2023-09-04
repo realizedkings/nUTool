@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,8 @@ public class LoggingNuServiceImpl implements LoggingNuService {
 	@Autowired
 	private LoggingNuMapper loggingNuMapper;
 	
+	private Logger log = LoggerFactory.getLogger(phis.his.nu.logging.LoggingNuServiceImpl.class);
+	
 	// 로그에서 쿼리,프로시저 등 DML문을 만들어서 반환 
 	private Map<String, String> makeSQL(String queryText, Map<String, String[]> batchQueryParams, int layer) {
 		Map<String, String> queryInfo = null;
@@ -30,9 +34,9 @@ public class LoggingNuServiceImpl implements LoggingNuService {
 		try {
 			queryText = queryText.replace("\r", "\\r").replace("\n", "\\n"); // 정규표현식 매칭 시 개행문자 일시 제외
 			
-			Pattern queryParsePattern = Pattern.compile("([a-zA-Z0-9\\._]+)\\|([a-z]+)\\|([0-9]+) msec\\|param=\\[(.*)\\]\\|([0-9]+ records)\\|(/\\*\\s.+\\.xml [a-zA-Z0-9]+ \\*/)(.+)\\|.+msec.*");
-			Pattern updateParsePattern = Pattern.compile("([a-zA-Z0-9\\._]+)\\|([a-z\\s]+)\\|([0-9]+) msec\\|param=\\[(.+)\\]\\|([([0-9]+ records)|([0-9]+ insert)|([0-9]+ returned),\\s]+)\\|(.+)(/\\* .+\\.xml [a-zA-Z0-9]+ \\*/) \\|.+msec.*");
-			Pattern batchParsePattern = Pattern.compile("([a-zA-Z0-9\\._]+)\\|([a-z]+)\\|([0-9]+) msec\\|([0-9]+ sqls)\\|(.+)(/\\* .+\\.xml [a-zA-Z0-9]+ \\*/) \\|[0-9]+ msec.*");
+			Pattern queryParsePattern = Pattern.compile("([a-zA-Z0-9\\._]+)\\|([a-z]+)\\|([0-9]+) msec\\|param=\\[(.*)\\]\\|([0-9]+ records)\\|(/\\*\\s.+\\.xml [a-zA-Z0-9_]+ \\*/)(.+)\\|.+msec.*");
+			Pattern updateParsePattern = Pattern.compile("([a-zA-Z0-9\\._]+)\\|([a-z\\s]+)\\|([0-9]+) msec\\|param=\\[(.+)\\]\\|([([0-9]+ records)|([0-9]+ insert)|([0-9]+ returned),\\s]+)\\|(.+)(/\\* .+\\.xml [a-zA-Z0-9_]+ \\*/) \\|.+msec.*");
+			Pattern batchParsePattern = Pattern.compile("([a-zA-Z0-9\\._]+)\\|([a-z]+)\\|([0-9]+) msec\\|([0-9]+ sqls)\\|(.+)(/\\* .+\\.xml [a-zA-Z0-9_]+ \\*/) \\|[0-9]+ msec.*");
 			Pattern procedureParsePattern = Pattern.compile("([a-zA-Z0-9\\._]+)\\|([a-z\\.\\s]+)\\|([0-9]+) msec\\|param=(.+),(.*call\\s[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+\\(.+\\)).*");
 			
 			// 일반 쿼리(execute query)
@@ -226,7 +230,7 @@ public class LoggingNuServiceImpl implements LoggingNuService {
 			
 			// 쿼리 내용 없는경우 그냥 종료
 			if (bindingQuery == null) {
-				System.out.println(queryText.replace("\\r", "\r").replace("\\n", "\n"));
+				log.debug(queryText.replace("\r", "\\r").replace("\n", "\\n"));
 				return null;
 			}
     		
@@ -252,7 +256,7 @@ public class LoggingNuServiceImpl implements LoggingNuService {
 			queryInfo.put("isQuery", "Y");
 			queryInfo.put("query", queryInfo.get("statement") + "\r\n" + bindingQuery.toString());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.debug(e.getMessage());
 			
 			return null;
 		}
@@ -274,7 +278,7 @@ public class LoggingNuServiceImpl implements LoggingNuService {
         int layer = 0;
         boolean queryStartFlag = false;
         boolean errorFlag = false;
-
+        
         // 패턴나열 
         Pattern basicPattern = Pattern.compile("([0-9]{1,9})\\[([a-zA-Z0-9=\\.:\\s]+)\\]\\[([0-9\\.:\\s]+)\\]\\s\\[([a-zA-Z0-9=\\.:\\s]+)\\]\\s\\[([a-zA-Z0-9=\\.:\\s_]+)\\]\\s(.+)");
         Pattern methodStartPattern = Pattern.compile("^(.+\\(\\))\\sstarts.$");
